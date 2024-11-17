@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Model of Brgy Tres</title>
+    <style>
+        /* Full-screen background image */
+        body {
+            background: url('pics/tulay.jpg') no-repeat center center fixed;
+            background-size: cover;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        /* Semi-transparent overlay */
+        #overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(51, 51, 51, 0.7); /* 70% opacity of #333333 */
+        }
+
+        /* Centered container for the 3D model */
+        #model-container-wrapper {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+        }
+
+        /* Landscape container for the 3D model */
+        #model-container {
+            width: 800px;
+            height: 500px;
+            margin: 0 auto;
+            border: 1px solid #ccc;
+            background-color: #f0f0f0;
+        }
+
+        /* Style for the header */
+        h3 {
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Semi-transparent overlay -->
+    <div id="overlay"></div>
+
+    <!-- Container for the header and 3D model -->
+    <div id="model-container-wrapper">
+        <h3>3D Model of Brgy Tres, Lian Batangas</h3>
+        <div id="model-container"></div>
+    </div>
+
+    <!-- Include Three.js and GLTFLoader for 3D model rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+
+    <script>
+        // Scene setup
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0xffffff); // Set the background color to white
+
+        const camera = new THREE.PerspectiveCamera(75, 800 / 500, 0.1, 1000); // Adjust aspect ratio for landscape
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(800, 500); // Set to landscape container size
+        renderer.shadowMap.enabled = true; // Enable shadows
+        document.getElementById("model-container").appendChild(renderer.domElement);
+
+        // Lighting setup
+        const ambientLight = new THREE.AmbientLight(0x404040, 3);
+        scene.add(ambientLight);
+
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 3);
+        directionalLight.position.set(5, 5, 5);
+        directionalLight.castShadow = true;
+        scene.add(directionalLight);
+
+        const pointLight = new THREE.PointLight(0xffffff, 4, 50);
+        pointLight.position.set(0, 5, 5);
+        scene.add(pointLight);
+
+        // Load the model
+        const loader = new THREE.GLTFLoader();
+        const modelUrl = 'https://raw.githubusercontent.com/kaibilatia/3d/main/Tres.glb';
+
+        loader.load(modelUrl, function(gltf) {
+            const model = gltf.scene;
+            scene.add(model);
+
+            model.traverse((child) => {
+                if (child.isMesh) {
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                }
+            });
+        }, undefined, function(error) {
+            console.error("Error loading model:", error);
+        });
+
+        camera.position.z = 20;
+
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.25;
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        animate();
+    </script>
+
+</body>
+</html>

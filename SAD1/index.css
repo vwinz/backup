@@ -1,0 +1,302 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+header {
+    position: relative;
+    background-image: url('https://i.imgur.com/kLDKeZP.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    color: white;
+    height: 800px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+}
+
+header::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(51, 51, 51, 0.7);
+    z-index: 1;
+}
+
+.header-container, .banner {
+    position: relative;
+    z-index: 2;
+}
+
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%; /* Full width */
+    padding: 10px 20px; /* Padding for internal spacing */
+    background-color: rgba(51, 51, 51, 0.7); /* Full-width semi-transparent background */
+    position: fixed; /* Fix the position at the top */
+    top: 0; /* Align with the top of the viewport */
+    left: 0; /* Align with the left edge */
+    z-index: 3; /* Ensure it is above other content */
+}
+
+
+
+header nav {
+
+    padding: 10px 20px;
+    border-radius: 8px;
+}
+
+header nav a {
+    color: white;
+    margin-left: 15px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s;
+}
+
+header nav a:hover {
+    color: #ddd;
+}
+
+header nav img {
+    width: 30px; /* Adjust the width as needed */
+    height: auto; /* Maintain aspect ratio */
+    margin-left: 15px; /* Optional: add space between the links and the icon */
+}
+
+
+.banner h2 {
+    font-size: 32px;
+    margin-bottom: 10px;
+}
+
+.banner {
+    text-align: center; /* Center all text in the banner */
+    padding: 20px; /* Add padding for spacing */
+}
+
+.banner p {
+    font-size: 20px; /* Set font size for welcome text */
+    color: #fff; /* Set color to white for contrast against the background */
+    margin-bottom: 10px; /* Optional: Add space below the paragraph */
+}
+
+
+.menu {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    padding: 20px 0;
+    margin-top: -80px;
+    width: 100%;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+    z-index: 3;
+    position: relative;
+}
+
+.menu-item {
+    background-color: white;
+    text-align: center;
+    padding: 20px;
+    width: 150px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    transition: transform 0.3s;
+}
+
+.menu-item:hover {
+    transform: scale(1.05);
+}
+
+.menu-item img {
+    width: 50px;
+    height: 50px;
+}
+
+.menu-item p {
+    margin-top: 10px;
+    font-weight: bold;
+    color: #333;
+}
+
+footer {
+    text-align: center;
+    padding: 10px;
+    background-color: #333;
+    color: white;
+    font-size: 14px;
+}
+
+@media (max-width: 768px) {
+    header {
+        height: 500px;
+    }
+
+    .banner h2 {
+        font-size: 24px;
+    }
+
+    .banner p {
+        font-size: 14px;
+    }
+
+    .menu {
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .menu-item {
+        width: 200px;
+    }
+}
+
+/* Forecast Section */
+.forecast-header {
+    text-align: center;
+    margin: 20px 0;
+    font-size: 1.8em;
+    color: #333333;
+}
+
+/* Forecast Cards */
+.weather-cards {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.weather-card {
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    padding: 20px;
+    width: 180px;
+    text-align: center;
+    transition: transform 0.3s ease;
+    cursor: pointer;
+}
+
+.weather-card:hover {
+    transform: translateY(-5px);
+}
+
+.weather-card img {
+    width: 60px;
+    height: 60px;
+}
+
+.weather-card h3 {
+    font-size: 1.2em;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.weather-card p {
+    margin: 5px 0;
+}
+
+/* Detailed Forecast View */
+.details {
+    margin-top: 20px;
+    display: none;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Chart Container */
+#chartContainer {
+    width: 100%;
+    max-width: 600px;
+    margin: 20px auto;
+    display: none;
+}
+
+.emergency-header {
+    text-align: center;
+    font-size: 2em;
+    color: red;
+    font-weight: bold;
+    margin-top: 40px;
+}
+
+.hotlines-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    background-color: #333;
+    color: white;
+    padding: 20px;
+    gap: 20px;
+}
+
+.hotline {
+    width: 200px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.hotline h3 {
+    font-size: 1.2em;
+    color: white;
+}
+
+.hotline p {
+    margin: 10px 0 0;
+    font-size: 1em;
+}
+
+.explore-button {
+        background-color: #333333;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s ease;
+    }
+
+    .explore-button:hover {
+        background-color: #555555;  
+    }
+
+    
+.river-button {
+    margin-left: 45%;
+    background-color: #333333;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.river-button:hover {
+    background-color: #555555;
+}

@@ -1,0 +1,23 @@
+[2024-09-23 16:22:30] - Form submitted with action: register
+[2024-09-23 16:22:30] - Executing SQL: INSERT INTO users (username, password) VALUES ('123', '$2y$10$H6Mt.oExEYgIwwC.M5Ac9ua1mr9tfMV0HxiDR/V5DM6aE6xc9yYpO')
+[2024-09-23 16:22:42] - Form submitted with action: register
+[2024-09-23 16:22:42] - Executing SQL: INSERT INTO users (username, password) VALUES ('12322', '$2y$10$0ahwbtNXob06mAXe3YERAeMMy/Ea.PxK0swdtIfgp6oGkzzcBVdjS')
+[2024-09-23 16:22:42] - Registration successful for username: 12322
+[2024-09-23 16:23:12] - Form submitted with action: login
+[2024-09-23 16:23:12] - Executing SQL: SELECT * FROM users WHERE username='ian'
+[2024-09-23 16:23:12] - Invalid password for username: ian
+[2024-09-23 16:23:21] - Form submitted with action: login
+[2024-09-23 16:23:21] - Executing SQL: SELECT * FROM users WHERE username='ian'
+[2024-09-23 16:23:21] - Invalid password for username: ian
+[2024-09-23 16:23:44] - Form submitted with action: register
+[2024-09-23 16:23:44] - Executing SQL: INSERT INTO users (username, password) VALUES ('12345', '$2y$10$.D.21W1aJm1Gn7k5D5GEPOo0EDvixnOS16V7BFq5z8U7Y3FIbtXQK')
+[2024-09-23 16:23:44] - Registration successful for username: 12345
+[2024-09-23 16:24:36] - Form submitted with action: login
+[2024-09-23 16:24:36] - Executing SQL: SELECT * FROM users WHERE username='12345'
+[2024-09-23 16:24:36] - Login successful for username: 12345
+[2024-09-23 16:27:12] - Form submitted with action: register
+[2024-09-23 16:27:12] - Executing SQL: INSERT INTO users (username, password) VALUES ('zaiers', '$2y$10$R3gFjxcQAPBFGCGFT8JpHerA1JvN1KzXlh.tLT9.hM1Ftb5Gs6bPO')
+[2024-09-23 16:27:12] - Registration successful for username: zaiers
+[2024-09-23 16:27:35] - Form submitted with action: login
+[2024-09-23 16:27:35] - Executing SQL: SELECT * FROM users WHERE username='zaiers'
+[2024-09-23 16:27:35] - Login successful for username: zaiers

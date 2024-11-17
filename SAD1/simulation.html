@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flood Simulation with Leaflet</title>
+  <style>
+    #map { height: 600px; width: 100%; }
+    .slider-container { margin: 20px 0; }
+    label { font-size: 16px; }
+    #floodLevelValue { font-weight: bold; }
+  </style>
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-animatedmarker/leaflet-animatedmarker.js"></script>
+</head>
+<body>
+
+  <div class="slider-container">
+    <label for="floodLevel">Set Flood Level (0-20 meters): </label>
+    <input type="range" id="floodLevel" name="floodLevel" min="0" max="20" value="0" step="1">
+    <span id="floodLevelValue">0 m</span>
+  </div>
+
+  <div id="map"></div>
+
+  <script>
+    const targetLat = 14.040117;
+    const targetLon = 120.651505;
+
+    const gridSize = 15; // Higher number for more natural-looking divisions
+    let map;
+    let floodLevel = 0;
+    let elevationData = [];
+    let polygonLayer; // Store the layer for the polygons to clear later
+
+    function initMap() {
+      map = L.map('map').setView([targetLat, targetLon], 13);
+
+      // Set OpenStreetMap tile layer
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+      // Generate more realistic elevation data
+      generateNaturalElevationData();
+
+      // Initialize the simulation with default settings
+      updateFloodSimulation();
+    }
+
+    // Generate random, organic elevation data with more natural regions
+    function generateNaturalElevationData() {
+      const latStart = targetLat - 0.02;
+      const lonStart = targetLon - 0.02;
+
+      for (let i = 0; i < gridSize; i++) {
+        for (let j = 0; j < gridSize; j++) {
+          const lat = latStart + (i * 0.004);
+          const lon = lonStart + (j * 0.004);
+          const elevation = Math.floor(Math.random() * 50); // Random elevation between 0-50 meters
+
+          // Generate some variability in the surrounding regions for natural irregularity
+          elevationData.push({ lat, lon, elevation, latOffset: Math.random() * 0.002 - 0.001, lonOffset: Math.random() * 0.002 - 0.001 });
+        }
+      }
+    }
+
+    // Update flood simulation based on the flood level
+    function updateFloodSimulation() {
+      if (polygonLayer) {
+        polygonLayer.clearLayers();  // Clear previous polygons to avoid overlap
+      } else {
+        polygonLayer = L.layerGroup().addTo(map);  // Initialize polygonLayer on first run
+      }
+
+      elevationData.forEach((data) => {
+        const color = getFloodColor(data.elevation);
+
+        const polygon = L.polygon([
+          [data.lat + data.latOffset, data.lon + data.lonOffset],
+          [data.lat + data.latOffset, data.lon + 0.002 + data.lonOffset],
+          [data.lat - 0.002 + data.latOffset, data.lon + 0.002 + data.lonOffset],
+          [data.lat - 0.002 + data.latOffset, data.lon + data.lonOffset]
+        ], {
+          color: color,
+          weight: 2,
+          opacity: 1,
+          fillColor: color,
+          fillOpacity: 0.6
+        }).addTo(polygonLayer);
+
+        // Add animation for smoother transitions
+        polygon.setStyle({ fillOpacity: 0.4 });
+        setTimeout(() => {
+          polygon.setStyle({ fillOpacity: 0.6 });
+        }, 500);
+      });
+    }
+
+    // Determine the color based on elevation and flood level
+    function getFloodColor(elevation) {
+      if (elevation <= floodLevel) {
+        return 'red'; // Flooded area
+      } else if (elevation <= floodLevel + 5) {
+        return 'yellow'; // Medium flood
+      } else {
+        return 'lightgreen'; // Safe area
+      }
+    }
+
+    // Event listener for the flood level slider
+    document.getElementById("floodLevel").addEventListener("input", function() {
+      floodLevel = this.value;
+      document.getElementById("floodLevelValue").textContent = `${floodLevel} m`;
+      updateFloodSimulation();
+    });
+
+    // Initialize the map when the page loads
+    window.onload = initMap;
+
+  </script>
+</body>
+</html>

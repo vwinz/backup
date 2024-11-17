@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flood Simulation with Leaflet Heatmap</title>
+  <style>
+    #map { height: 600px; width: 100%; }
+    .slider-container { margin: 20px 0; }
+    label { font-size: 16px; }
+    #floodLevelValue { font-weight: bold; }
+  </style>
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <!-- Leaflet Heatmap Plugin -->
+  <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
+</head>
+<body>
+
+  <div class="slider-container">
+    <label for="floodLevel">Set Flood Level (0-20 meters): </label>
+    <input type="range" id="floodLevel" name="floodLevel" min="0" max="20" value="0" step="1">
+    <span id="floodLevelValue">0 m</span>
+  </div>
+
+  <div id="map"></div>
+
+  <script>
+    const targetLat = 14.040117;
+    const targetLon = 120.651505;
+
+    const gridSize = 15;
+    let map;
+    let floodLevel = 0;
+    let elevationData = [];
+    let heatLayer;  // Layer for the heatmap
+    const baseRadius = 20; // Base radius for heatmap points
+
+    function initMap() {
+      map = L.map('map').setView([targetLat, targetLon], 13);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+      generateNaturalElevationData();
+      updateFloodSimulation();
+
+      // Update heatmap radius when zooming
+      map.on('zoomend', updateFloodSimulation);
+    }
+
+    function generateNaturalElevationData() {
+      const latStart = targetLat - 0.02;
+      const lonStart = targetLon - 0.02;
+
+      for (let i = 0; i < gridSize; i++) {
+        for (let j = 0; j < gridSize; j++) {
+          const lat = latStart + (i * 0.004);
+          const lon = lonStart + (j * 0.004);
+          const elevation = Math.floor(Math.random() * 50); // Random elevation between 0-50 meters
+
+          elevationData.push({ lat, lon, elevation });
+        }
+      }
+    }
+
+    function updateFloodSimulation() {
+      const heatPoints = [];
+
+      elevationData.forEach((data) => {
+        // Calculate intensity based on elevation relative to flood level
+        const intensity = getFloodIntensity(data.elevation);
+        if (intensity > 0) {  // Only add points with intensity > 0
+          heatPoints.push([data.lat, data.lon, intensity]);
+        }
+      });
+
+      // Remove previous heatLayer if it exists
+      if (heatLayer) {
+        map.removeLayer(heatLayer);
+      }
+
+      // Create new heatLayer with dynamic radius based on zoom
+      heatLayer = L.heatLayer(heatPoints, {
+        radius: baseRadius * getRadiusScale(),  // Adjust radius with zoom level
+        blur: 15,
+        maxZoom: 13,
+        max: 1  // Normalize the intensity
+      }).addTo(map);
+    }
+
+    // Calculate flood intensity based on elevation
+    function getFloodIntensity(elevation) {
+      if (elevation <= floodLevel) {
+        return 1; // Highest intensity for flooded areas
+      } else if (elevation <= floodLevel + 5) {
+        return 0.6; // Medium intensity for near-flooded areas
+      } else if (elevation <= floodLevel + 10) {
+        return 0.3; // Low intensity for safe areas
+      } else {
+        return 0; // No intensity for areas significantly above flood level
+      }
+    }
+
+    // Function to scale the radius based on the current zoom level
+    function getRadiusScale() {
+      return Math.pow(2, map.getZoom() - 13); // Adjust '13' to the zoom level where base radius looks best
+    }
+
+    // Update flood level on slider change
+    document.getElementById("floodLevel").addEventListener("input", function() {
+      floodLevel = this.value;
+      document.getElementById("floodLevelValue").textContent = `${floodLevel} m`;
+      updateFloodSimulation();
+    });
+
+    window.onload = initMap;
+  </script>
+</body>
+</html>
+    

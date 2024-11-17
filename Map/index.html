@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FloodGuard</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+     crossorigin=""/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
+    <link rel="stylesheet" href="style.css">
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+
+        #map {
+            height: 100%;
+        }
+
+        #location-button {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            cursor: pointer;
+            z-index: 1000; /* Ensure it is above other elements */
+        }
+
+        #target-button {
+            margin-bottom: 2%;
+            position: absolute;
+            bottom: 100px; /* Adjusted to be above the location button */
+            right: 20px;
+            cursor: pointer;
+            z-index: 1001; /* Higher z-index to ensure it is above location button */
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+
+    <!-- Image for centering the map on user's location -->
+    <img id="location-button" src="targ.png" alt="Center Location" width="80" height="80" onclick="centerUserLocation()">
+
+    <!-- Image for centering the map on target location -->
+    <img id="target-button" src="pinpo.png" alt="Center Target Location" width="80" height="80" onclick="centerMap()">
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""></script>
+    <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+
+    <script>
+        // Initial map setup with a closer zoom level
+        var map = L.map('map').setView([14.040003, 120.650877], 18);
+    
+        var satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: '&copy; <a href="https://www.esri.com/en-us/arcgis/products/arcgis-online/overview">Esri</a> contributors'
+        });
+    
+        satellite.addTo(map);
+    
+        var marker, circle, routingControl;
+        var targetLat = 14.040649; // Latitude for building
+        var targetLong = 120.650366; // Longitude for building
+
+        // Add the building image as a marker on the map
+        var buildingIcon = L.icon({
+            iconUrl: 'building.png',
+            iconSize: [50, 50], // Adjust size as needed
+            iconAnchor: [25, 50] // Anchor the icon to the bottom center
+        });
+
+        var buildingMarker = L.marker([targetLat, targetLong], { icon: buildingIcon }).addTo(map);
+        
+        // Add click event to the building marker
+        buildingMarker.on('click', function() {
+            // Show a popup with the label "Brgy. Hall"
+            L.popup()
+                .setLatLng(buildingMarker.getLatLng())
+                .setContent("Brgy. Hall")
+                .openOn(map);
+
+            if (marker) {
+                // Generate a route from the user's location to the building
+                routingControl = L.Routing.control({
+                    waypoints: [
+                        L.latLng(marker.getLatLng().lat, marker.getLatLng().lng),
+                        L.latLng(targetLat, targetLong)
+                    ],
+                    routeWhileDragging: true
+                }).addTo(map);
+            } else {
+                console.error("User location not available.");
+            }
+        });
+
+        function centerMap() {
+            map.setView([targetLat, targetLong], 18); // Center the map on the building location
+        }
+    
+        function getPosition(position) {
+            var lat = position.coords.latitude;
+            var long = position.coords.longitude;
+            var accuracy = position.coords.accuracy;
+    
+            if (marker) {
+                map.removeLayer(marker);
+            }
+            if (circle) {
+                map.removeLayer(circle);
+            }
+    
+            marker = L.marker([lat, long]).addTo(map);
+            circle = L.circle([lat, long], { radius: accuracy }).addTo(map);
+    
+            console.log("Your coordinate is: Lat: " + lat + " Long: " + long + " Accuracy: " + accuracy);
+        }
+    
+        function centerUserLocation() {
+            if (marker) {
+                map.setView(marker.getLatLng(), 18); // Adjust the zoom level as necessary
+            } else {
+                console.error("User location not available.");
+            }
+        }
+
+        // Ask for the user's location only once on page load
+        window.onload = function() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(getPosition, function(error) {
+                    console.error("Error getting location: " + error.message);
+                });
+            }
+        };
+    </script>
+</body>
+</html>

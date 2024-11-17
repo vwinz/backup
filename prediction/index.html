@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Water Level Graph</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h2>Real-Time Water Level with Prediction</h2>
+    <canvas id="waterLevelChart" width="400" height="200"></canvas>
+
+    <script>
+        const ctx = document.getElementById('waterLevelChart').getContext('2d');
+        const waterLevelChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],  // Initially empty
+                datasets: [
+                    {
+                        label: 'Water Level',
+                        data: [],  // Actual water levels
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 2,
+                        fill: false
+                    },
+                    {
+                        label: 'Prediction',
+                        data: [],  // Predicted values
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 2,
+                        borderDash: [5, 5],  // Dashed line for prediction
+                        fill: false
+                    }
+                ]
+            },
+            options: {
+                scales: {
+                    y: {
+                        suggestedMin: 0,
+                        suggestedMax: 10  // Adjust to your expected range
+                    }
+                }
+            }
+        });
+
+        // Linear regression to predict the next 5 points
+        function calculateLinearRegression(data) {
+            const n = data.length;
+            if (n < 2) {
+                console.log("Not enough data to calculate predictions");  // Debugging message
+                return [];  // Require at least 2 data points for linear regression
+            }
+
+            const x = [...Array(n).keys()];  // [0, 1, 2, ..., n-1]
+            const y = data;
+
+            // Debugging sums for regression calculation
+            const sumX = x.reduce((a, b) => a + b, 0);
+            const sumY = y.reduce((a, b) => a + b, 0);
+            const sumXY = x.reduce((sum, xi, i) => sum + xi * y[i], 0);
+            const sumX2 = x.reduce((sum, xi) => sum + xi * xi, 0);
+
+            console.log(`sumX: ${sumX}, sumY: ${sumY}, sumXY: ${sumXY}, sumX2: ${sumX2}`);  // Debugging
+
+            const m = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+            const b = (sumY - m * sumX) / n;
+
+            console.log(`Calculated slope (m): ${m}, intercept (b): ${b}`);  // Debugging
+
+            const predictions = [];
+            for (let i = n; i < n + 5; i++) {  // Predict next 5 points
+                predictions.push(m * i + b);
+            }
+
+            console.log("Predictions:", predictions);  // Debugging
+            return predictions;
+        }
+
+        // Fetch data and update the chart
+        function fetchData() {
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', 'index.php', true);
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    const data = JSON.parse(xhr.responseText);
+                    console.log('Fetched data:', data);  // Debugging
+
+                    // Clear existing data
+                    waterLevelChart.data.labels = [];
+                    waterLevelChart.data.datasets[0].data = [];
+                    waterLevelChart.data.datasets[1].data = [];
+
+                    const waterLevels = [];
+                    data.forEach(entry => {
+                        const timestamp = new Date(entry.timestamp).toLocaleTimeString();
+                        waterLevelChart.data.labels.push(timestamp);
+                        waterLevelChart.data.datasets[0].data.push(entry.water_level);
+                        waterLevels.push(entry.water_level);
+                    });
+
+                    // Debugging: Check water levels
+                    console.log("Water Levels:", waterLevels);
+
+                    // Calculate predictions
+                    const predictions = calculateLinearRegression(waterLevels);
+
+                    if (predictions.length > 0) {
+                        // Add null placeholders for actual data
+                        const nulls = Array(data.length).fill(null);
+                        waterLevelChart.data.datasets[1].data = [...nulls, ...predictions];
+
+                        // Add corresponding labels for predicted data points
+                        const predictionLabels = [];
+                        for (let i = 1; i <= predictions.length; i++) {
+                            predictionLabels.push(`+${i} min`);
+                        }
+                        waterLevelChart.data.labels = [...waterLevelChart.data.labels, ...predictionLabels];
+                    } else {
+                        console.log("No predictions to display.");
+                    }
+
+                    // Debugging Chart Data
+                    console.log('Prediction Dataset:', waterLevelChart.data.datasets[1].data);
+
+                    // Update the chart
+                    waterLevelChart.update();
+                }
+            };
+            xhr.send();
+        }
+
+        // Fetch data initially and every 5 seconds
+        fetchData();
+        setInterval(fetchData, 5000);
+    </script>
+</body>
+</html>

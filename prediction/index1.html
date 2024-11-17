@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>World Map with Real-Time Typhoon Tracking</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-motion"></script> <!-- Optional: For smooth animation -->
+  <style>
+    #map {
+      height: 100vh;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <script>
+    // Initialize the map
+    var map = L.map('map', {
+      center: [0, 0],
+      zoom: 3,
+      minZoom: 1,
+      maxZoom: 19
+    });
+
+    // Add the Esri World Imagery layer
+    var esriWorldImagery = L.tileLayer(
+      'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+      {
+        attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoIQ, and the GIS User Community',
+        maxZoom: 19
+      }
+    ).addTo(map);
+
+    // Add precipitation layer (OpenWeatherMap)
+    var precipitationLayer = L.tileLayer(
+      'https://tile.openweathermap.org/map/precipitation_new/{z}/{x}/{y}.png?appid=279922c56e2343fa988bf4d4a7863098', // Replace with your API Key
+      {
+        attribution: '&copy; <a href="https://openweathermap.org/">OpenWeatherMap</a>',
+        maxZoom: 19,
+        opacity: 0.7
+      }
+    ).addTo(map);
+
+    // Fetch real-time typhoon data from an API (Example: OpenWeatherMap)
+    async function fetchTyphoonData() {
+      // Example API endpoint (Replace with the real data source)
+      const apiUrl = "https://api.openweathermap.org/data/2.5/typhoon?appid=279922c56e2343fa988bf4d4a7863098";
+      
+      const response = await fetch(apiUrl);
+      const data = await response.json();
+      
+      return data; // This will include typhoon coordinates, wind speed, etc.
+    }
+
+    // Add the typhoon track dynamically
+    async function plotTyphoonTrack() {
+      const typhoonData = await fetchTyphoonData();
+
+      const typhoonPath = L.polyline([], {color: 'red', weight: 4, opacity: 0.7}).addTo(map);
+      let typhoonMarker = L.marker([typhoonData[0].lat, typhoonData[0].lon]).addTo(map);
+      
+      typhoonData.forEach(point => {
+        typhoonPath.addLatLng([point.lat, point.lon]);
+
+        // Optionally, add a popup with details like wind speed, pressure, etc.
+        typhoonMarker.bindPopup(`Wind Speed: ${point.windSpeed} km/h<br>Pressure: ${point.pressure} hPa`).openPopup();
+      });
+
+      // Animate marker along the path
+      let i = 0;
+      function animateTyphoon() {
+        if (i < typhoonData.length) {
+          typhoonMarker.setLatLng([typhoonData[i].lat, typhoonData[i].lon]);
+          map.setView([typhoonData[i].lat, typhoonData[i].lon], 5); // Smooth zoom and pan
+          i++;
+        }
+      }
+      
+      setInterval(animateTyphoon, 2000); // Move marker every 2 seconds (adjust as needed)
+    }
+
+    plotTyphoonTrack(); // Call function to start tracking
+
+  </script>
+</body>
+</html>

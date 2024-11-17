@@ -1,0 +1,23 @@
+{
+    "type": "FeatureCollection",
+    "features": [
+      {
+        "type": "Feature",
+        "properties": {
+          "name": "Target Barangay Name"
+        },
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [120.630063, 14.111065],
+              [120.631000, 14.111500],
+              [120.632000, 14.111000],
+              [120.630063, 14.111065]
+            ]
+          ]
+        }
+      }
+    ]
+  }
+  
