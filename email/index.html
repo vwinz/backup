@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Email Sending Form</title>
+</head>
+<body>
+  <h1>Send Email</h1>
+  <form id="emailForm">
+    <label for="toEmail">Recipient's Email:</label><br>
+    <input type="email" id="toEmail" name="toEmail" placeholder="Enter recipient's email" required><br><br>
+
+    <label for="message">Message:</label><br>
+    <textarea id="message" name="message" placeholder="Write your message here" required></textarea><br><br>
+
+    <button type="submit">Send Email</button>
+  </form>
+
+  <p id="status"></p>
+
+  <!-- Include the latest EmailJS library -->
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script type="text/javascript">
+    emailjs.init("q6mrbPROZKMOvff2T"); // Replace with your public key
+
+    document.getElementById('emailForm').addEventListener('submit', function (e) {
+      e.preventDefault(); 
+
+      const toEmail = document.getElementById('toEmail').value;
+      const message = document.getElementById('message').value;
+
+      const emailParams = {
+        to_email: toEmail,
+        from_name: "IanVwinz",  // Default sender name
+        message: message
+      };
+
+      emailjs.send("service_soc43sm", "template_r73l3wo", emailParams)
+        .then(function (response) {
+          document.getElementById('status').innerText = "Email sent successfully!";
+        })
+        .catch(function (error) {
+          document.getElementById('status').innerText = "Failed to send email: " + error.text;
+        });
+    });
+  </script>
+</body>
+</html>
