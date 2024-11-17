@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Model of Brgy Tres</title>
+    <style>
+        /* Basic styling for the container */
+        #model-container {
+            width: 500px;
+            height: 500px;
+            margin: 0 auto;
+            border: 1px solid #ccc;
+            background-color: #f0f0f0;
+        }
+
+        /* Set the background color of the page to white */
+        body {
+            background-color: white;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+    </style>
+</head>
+<body>
+
+    <div style="text-align: center;">
+        <h3>3D Model of Brgy Tres, Lian Batangas</h3>
+        <div id="model-container"></div>
+    </div>
+
+    <!-- Include Three.js and GLTFLoader for 3D model rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script> <!-- OrbitControls for interactivity -->
+
+    <script>
+        // Scene setup
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0xffffff); // Set the background color to white
+
+        const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(500, 500); // Set to container size
+        renderer.shadowMap.enabled = true; // Enable shadows
+        document.getElementById("model-container").appendChild(renderer.domElement);
+
+        // Lighting setup: Increase intensity for brighter lighting
+        const ambientLight = new THREE.AmbientLight(0x404040, 3); // Increase intensity for a brighter ambient light
+        scene.add(ambientLight);
+
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 3); // Increase intensity for a brighter directional light
+        directionalLight.position.set(5, 5, 5);
+        directionalLight.castShadow = true; // Enable shadows for this light
+        scene.add(directionalLight);
+
+        // Add a point light with higher intensity for a more dramatic effect (like in Blender)
+        const pointLight = new THREE.PointLight(0xffffff, 4, 50); // Increase intensity for a stronger point light
+        pointLight.position.set(0, 5, 5);
+        scene.add(pointLight);
+
+        // Load the model from the 'pics' folder
+        const loader = new THREE.GLTFLoader();
+        const modelUrl = '/pics/BrgyTres.glb'; // Path to the GLB file in the 'pics' folder
+
+        loader.load(modelUrl, function(gltf) {
+            const model = gltf.scene;
+            scene.add(model);
+
+            // Apply shadows to the model's children
+            model.traverse((child) => {
+                if (child.isMesh) {
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                }
+            });
+        }, undefined, function(error) {
+            console.error("Error loading model:", error);
+        });
+
+        // Position the camera further out for a zoomed-out view
+        camera.position.z = 20; // Zoom out by setting the camera further from the model
+
+        // Set up OrbitControls for interactivity
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true; // Smooth camera movement
+        controls.dampingFactor = 0.25;
+        controls.screenSpacePanning = false; // Disable panning in screen space
+
+        // Animation loop to render the scene continuously
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update(); // Update the controls for smooth movement
+            renderer.render(scene, camera);
+        }
+        animate();
+    </script>
+
+</body>
+</html>
